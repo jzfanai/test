@@ -1,44 +1,64 @@
-#Experiment for sending UDP traffic. # nodes are connected as n1-->n2
-# Procedures used in the code. proc finish { } {
-global ns nf tf file_namtr
-$ns flush-trace close $nf close $tf
-exit 0
-}
-set file_namtr "simpleudp1.nam" set file_pkttr "simpleudp1.tr"
+# Experiment for sending UDP traffic. Nodes are connected as n1-->n2
+# Procedures used in the code
 
-# create the ns object and trace files set ns [ new Simulator ]
-set nf [ open $file_namtr w ]
+proc finish {} {
+    global ns nf tf
+    $ns flush-trace
+    close $nf
+    close $tf
+    exit 0
+}
+
+# Set file names for trace and NAM files
+set file_namtr "simpleudp1.nam"
+set file_pkttr "simpleudp1.tr"
+
+# Create the ns object and trace files
+set ns [new Simulator]
+set nf [open $file_namtr w]
 $ns namtrace-all $nf
-set tf [ open $file_pkttr w ]
+set tf [open $file_pkttr w]
 $ns trace-all $tf
 
-# create the nodes and links for traffic set n1 [$ns node]
+# Create the nodes and links for traffic
+set n1 [$ns node]
 set n2 [$ns node]
+
+# Set colors and labels for nodes
 $n1 color "green"
 $n2 color "purple"
 $n1 label "sender"
 $n2 label "receiver"
+
+# Create duplex link with 1Mb bandwidth and 100ms delay
 $ns duplex-link $n1 $n2 1Mb 100ms DropTail
 
-# define node, and links colors for graph animation
+# Define node, and link colors for animation
 $ns color 1 "green"
 
 # Generate UDP traffic
-set udps [new Agent/UDP] set udpr [new Agent/Null]
+set udps [new Agent/UDP]
+set udpr [new Agent/Null]
 $ns attach-agent $n1 $udps
 $ns attach-agent $n2 $udpr
-#Setup a CBR over UDP connection set cbr [new Application/Traffic/CBR]
+
+# Set up a CBR (Constant Bit Rate) over UDP connection
+set cbr [new Application/Traffic/CBR]
 $cbr set packet_size_ 800
 $cbr set interval_ 40ms
 $cbr attach-agent $udps
 $ns connect $udps $udpr
 
-#Schedule events for the CBR and FTP agents
+# Schedule events for the CBR application
 $ns at 0.0 "$cbr start"
 $ns at 1.0 "$cbr stop"
 
-#Print CBR packet size and interval
-puts "CBR Packet Size = [$cbr set packet_size_]" puts "CBR Rate = [$cbr set rate_]"
-puts "CBR Interval = [$cbr set interval_]" puts "CBR Max Pkts = [$cbr set maxpkts_]" puts "CBR Random Behaviour = [$cbr set random_]" $ns at 2.0 "finish"
+# Print CBR packet size and interval for verification
+puts "CBR Packet Size = [$cbr set packet_size_]"
+puts "CBR Interval = [$cbr set interval_]"
+
+# Finish the simulation after 2 seconds
+$ns at 2.0 "finish"
+
+# Run the simulation
 $ns run
-# 	
