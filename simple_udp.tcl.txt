@@ -1,6 +1,7 @@
 # Experiment for sending UDP traffic. Nodes are connected as n1-->n2
 # Procedures used in the code
 
+# Define finish procedure
 proc finish {} {
     global ns nf tf
     $ns flush-trace
@@ -13,7 +14,7 @@ proc finish {} {
 set file_namtr "simpleudp1.nam"
 set file_pkttr "simpleudp1.tr"
 
-# Create the ns object and trace files
+# Create the ns object (Simulator) and trace files
 set ns [new Simulator]
 set nf [open $file_namtr w]
 $ns namtrace-all $nf
